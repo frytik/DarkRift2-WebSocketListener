@@ -17,6 +17,8 @@ public class WebSocketClientConnection : NetworkClientConnection
     private readonly string _address;
     private readonly int _port;
 
+    private bool _disposed;
+
     public WebSocketClientConnection(string address, int port, bool isUsingSecureConnection)
     {
         _isUsingSecureConnection = isUsingSecureConnection;
@@ -31,6 +33,18 @@ public class WebSocketClientConnection : NetworkClientConnection
         _webSocketClient = WebSocketSharpWebSocketClient.Instance;
 #endif
         _connectionState = ConnectionState.Disconnected;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            _disposed = true;
+
+            _webSocketClient.DisconnectFromServer();
+        }
+
+        base.Dispose(disposing);
     }
 
     private void SubscribeToWebSocketCallbacks()
@@ -75,15 +89,22 @@ public class WebSocketClientConnection : NetworkClientConnection
     
     private bool SendMessage(MessageBuffer message)
     {
-        if (_connectionState == ConnectionState.Disconnected)
-            return false;
+        using (message)
+        {
+            if (_connectionState == ConnectionState.Disconnected)
+                return false;
+
+            _webSocketClient.SendMessageToServer(message.Buffer, message.Count);
+        }
         
-        _webSocketClient.SendMessageToServer(message.Buffer, message.Count);
         return true;
     }
 
     public override bool Disconnect()
     {
+        if (_disposed)
+            return true;
+
         _webSocketClient.DisconnectFromServer();
         return true;
     }
