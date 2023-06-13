@@ -1,5 +1,4 @@
 var WebSocketJavaScriptLibrary = {
-
   $ConnectionOpen: {},
   $ConnectionClosed: {},
   $ReceivedByteArrayMessage: {},
@@ -7,17 +6,17 @@ var WebSocketJavaScriptLibrary = {
   $ReceivedError: {},
 
   ConnectWebSocket: function init(wsUri) {
-    var url = Pointer_stringify(wsUri);
+    var url = UTF8ToString(wsUri);
 
     websocket = new WebSocket(url);
     websocket.binaryType = "arraybuffer";
 
     websocket.onopen = function(evt) {
-      Runtime.dynCall('v', ConnectionOpen.callback, 0);
+      Module['dynCall_v'](ConnectionOpen.callback, 0);
     };
 
     websocket.onclose = function(evt) {
-      Runtime.dynCall('v', ConnectionClosed.callback, 0);
+      Module['dynCall_v'](ConnectionClosed.callback, 0);
     };
 
     websocket.onmessage = function(evt) {
@@ -26,19 +25,19 @@ var WebSocketJavaScriptLibrary = {
         var buffer = _malloc(byteArray.byteLength);
 
         HEAPU8.set(byteArray, buffer / byteArray.BYTES_PER_ELEMENT);
-        Runtime.dynCall('vii', ReceivedByteArrayMessage.callback, [buffer, byteArray.length]);
+        Module['dynCall_vii'](ReceivedByteArrayMessage.callback, buffer, byteArray.length);
         _free(buffer);
       } else if (typeof evt.data === "string") {
         var buffer = _malloc(lengthBytesUTF8(evt.data) + 1);
 
         stringToUTF8(evt.data, buffer, lengthBytesUTF8(evt.data) + 1);
-        Runtime.dynCall('vi', ReceivedTextMessage.callback, [buffer]);
+        Module['dynCall_vi'](ReceivedTextMessage.callback, buffer);
         _free(buffer);
       }
     };
 
     websocket.onerror = function(evt) {
-      Runtime.dynCall('v', ReceivedError.callback, 0);
+      Module['dynCall_v'](ReceivedError.callback, 0);
     };
   },
 
@@ -67,7 +66,7 @@ var WebSocketJavaScriptLibrary = {
   },
 
   SendTextMessage: function (textMessage) {
-    var message = Pointer_stringify(textMessage);
+    var message = UTF8ToString(textMessage);
     websocket.send(message);
   },
 
