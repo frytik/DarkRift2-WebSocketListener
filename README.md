@@ -10,6 +10,10 @@ Should be compatible with DarkRift2 version 2.6.0 and above.
 
 Both client and server use [websocket-sharp](https://github.com/sta/websocket-sharp) implementation of WebSocket protocol. Client uses it for non-WebGL build.
 
+### If you are using embedded darkrift server, you need to generate RSA key instead of default ECDSA from let's encrypt with option --key-type rsa
+
+### If you are using cloudflare, you can't use proxied DNS (until you use supported port for proxied DNS)
+
 ## Prerequisites
 - [DarkRift 2](https://darkriftnetworking.com/DarkRift2)
 - [websocket-sharp](https://github.com/sta/websocket-sharp)
